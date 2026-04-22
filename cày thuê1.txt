@@ -1,0 +1,108 @@
+local player = game.Players.LocalPlayer
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+
+local gui = Instance.new("ScreenGui")
+gui.Parent = player:WaitForChild("PlayerGui")
+gui.ResetOnSpawn = false
+gui.DisplayOrder = 999
+
+-- ===== FRAME =====
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 180, 0, 110)
+frame.Position = UDim2.new(0.5, -90, 0.05, 0)
+frame.BackgroundTransparency = 1
+frame.Active = true
+frame.Parent = gui
+
+-- ===== NÚT HIỆN =====
+local showBtn = Instance.new("TextButton")
+showBtn.Size = UDim2.new(0, 70, 0, 25)
+showBtn.Position = UDim2.new(0.5, -35, 0.05, 0)
+showBtn.Text = "HIỆN"
+showBtn.Visible = false
+showBtn.BackgroundTransparency = 0.4
+showBtn.Parent = gui
+
+-- ===== NÚT X (SIZE 20) =====
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 20, 0, 20) -- 🔥 FIX size 20
+closeBtn.Position = UDim2.new(1, -20, 0, 0)
+closeBtn.Text = "X"
+closeBtn.BackgroundTransparency = 1
+closeBtn.Parent = frame
+
+-- ===== NAME =====
+local nameLabel = Instance.new("TextLabel")
+nameLabel.Size = UDim2.new(1, 0, 0, 30)
+nameLabel.BackgroundTransparency = 1
+nameLabel.Text = "tên: " .. player.Name
+nameLabel.TextSize = 30
+nameLabel.Font = Enum.Font.SourceSansBold
+nameLabel.Parent = frame
+
+-- ===== ĐƠN =====
+local box = Instance.new("TextBox")
+box.Size = UDim2.new(1, -10, 0, 25)
+box.Position = UDim2.new(0, 5, 0, 40)
+box.BackgroundTransparency = 0.9
+box.Text = "đơn : "
+box.TextSize = 20
+box.TextXAlignment = Enum.TextXAlignment.Left
+box.ClearTextOnFocus = false
+box.Parent = frame
+
+-- ===== TOGGLE =====
+local function hide()
+	frame.Visible = false
+	showBtn.Visible = true
+end
+
+local function show()
+	frame.Visible = true
+	showBtn.Visible = false
+end
+
+closeBtn.MouseButton1Click:Connect(hide)
+showBtn.MouseButton1Click:Connect(show)
+
+-- ===== RAINBOW =====
+local hue = 0
+RunService.RenderStepped:Connect(function()
+	hue = (hue + 0.004) % 1
+	local color = Color3.fromHSV(hue, 1, 1)
+
+	nameLabel.TextColor3 = color
+	box.TextColor3 = color
+	closeBtn.TextColor3 = color
+	showBtn.TextColor3 = color
+end)
+
+-- ===== DRAG =====
+local dragging, dragStart, startPos
+
+frame.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = frame.Position
+	end
+end)
+
+frame.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = false
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = input.Position - dragStart
+		frame.Position = UDim2.new(
+			startPos.X.Scale,
+			startPos.X.Offset + delta.X,
+			startPos.Y.Scale,
+			startPos.Y.Offset + delta.Y
+		)
+	end
+end)
